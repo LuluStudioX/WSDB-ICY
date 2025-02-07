@@ -47,9 +47,9 @@ class GNCommands(commands.Cog):
                     status_embed.add_field(
                         name="📌 Support Information",
                         value=(
-                            "**Developer:** <@918825495456514088>\n"
+                            "**Developer:** <@174700461511802880>\n"
                             "**Discord Server:** [Click to Join](https://discord.gg/whiteoutall)\n"
-                            "**Support:** [Buy me a coffee ☕](https://www.buymeacoffee.com/reloisback)\n"
+                            "**Support:** [Buy me a coffee ☕](https://buymeacoffee.com/95lulu)\n"
                             "━━━━━━━━━━━━━━━━━━━━━━"
                         ),
                         inline=False

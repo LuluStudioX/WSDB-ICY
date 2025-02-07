@@ -60,8 +60,9 @@ if __name__ == "__main__":
     import requests
     import asyncio
     import pkg_resources
+    from dotenv import load_dotenv
 
-    VERSION_URL = "https://raw.githubusercontent.com/Reloisback/Whiteout-Survival-Discord-Bot/refs/heads/main/autoupdateinfo.txt"
+    VERSION_URL = "https://raw.githubusercontent.com/LuluStudioX/WSDB-ICY/refs/heads/main/autoupdateinfo.txt"
 
     def restart_bot():
         print(Fore.YELLOW + "\nRestarting bot..." + Style.RESET_ALL)
@@ -157,7 +158,7 @@ if __name__ == "__main__":
                         
                         for file_name, new_version in updates_needed:
                             if file_name.strip() != 'main.py':
-                                file_url = f"https://raw.githubusercontent.com/Reloisback/Whiteout-Survival-Discord-Bot/refs/heads/main/{file_name}"
+                                file_url = f"https://raw.githubusercontent.com/LuluStudioX/WSDB-ICY/refs/heads/main/{file_name}"
                                 file_response = requests.get(file_url)
                                 
                                 if file_response.status_code == 200:
@@ -172,7 +173,7 @@ if __name__ == "__main__":
                                     """, (file_name, new_version, 0))
 
                         if main_py_updated:
-                            main_file_url = "https://raw.githubusercontent.com/Reloisback/Whiteout-Survival-Discord-Bot/refs/heads/main/main.py"
+                            main_file_url = "https://raw.githubusercontent.com/LuluStudioX/WSDB-ICY/refs/heads/main/main.py"
                             main_response = requests.get(main_file_url)
                             
                             if main_response.status_code == 200:
@@ -227,14 +228,16 @@ if __name__ == "__main__":
 
     init(autoreset=True)
 
-    token_file = 'bot_token.txt'
-    if not os.path.exists(token_file):
+    # Load environment variables from .env file
+    load_dotenv()
+
+    # Get the bot token from the environment variable
+    bot_token = os.getenv('DISCORD_TOKEN')
+
+    if not bot_token:
         bot_token = input("Enter the bot token: ")
-        with open(token_file, 'w') as f:
-            f.write(bot_token)
-    else:
-        with open(token_file, 'r') as f:
-            bot_token = f.read().strip()
+        with open('.env', 'a') as f:
+            f.write(f"\nBOT_TOKEN={DISCORD_TOKEN}")
 
     if not os.path.exists('db'):
         os.makedirs('db')
