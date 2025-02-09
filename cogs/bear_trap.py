@@ -38,7 +38,7 @@ class BearTrap(commands.Cog):
                 created_by INTEGER NOT NULL,
                 last_notification TIMESTAMP,
                 next_notification TIMESTAMP,
-                alliance_id INTEGER NOT NULL, -- Set default to NULL, making it optional
+                alliance_id INTEGER NOT NULL
             )
         """)
 
