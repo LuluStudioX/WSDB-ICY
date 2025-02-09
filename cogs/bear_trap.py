@@ -15,6 +15,11 @@ class BearTrap(commands.Cog):
         self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
 
+        # Connect to alliance databases
+        self.alliance_db_path = 'db/alliance.sqlite'
+        self.alliance_db = sqlite3.connect(self.alliance_db_path, check_same_thread=False)
+        self.alliance_cursor = self.alliance_db.cursor()
+
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS bear_notifications (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,12 +32,13 @@ class BearTrap(commands.Cog):
                 notification_type INTEGER NOT NULL,
                 mention_type TEXT NOT NULL,
                 repeat_enabled INTEGER NOT NULL DEFAULT 0,
-                repeat_minutes INTEGER DEFAULT 0,
+                repeat_minutes INTEGER DEFAULT 2880,--48h as default value
                 is_enabled INTEGER DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_by INTEGER NOT NULL,
                 last_notification TIMESTAMP,
-                next_notification TIMESTAMP
+                next_notification TIMESTAMP,
+                alliance_id INTEGER NOT NULL, -- Set default to NULL, making it optional
             )
         """)
 
@@ -80,9 +86,9 @@ class BearTrap(commands.Cog):
             self.notification_task.cancel()
 
     async def save_notification(self, guild_id: int, channel_id: int, start_date: datetime,
-                              hour: int, minute: int, timezone: str, description: str,
-                              created_by: int, notification_type: int, mention_type: str,
-                              repeat_48h: bool, repeat_minutes: int = 0) -> int:
+                                hour: int, minute: int, timezone: str, description: str,
+                                created_by: int, notification_type: int, mention_type: str,
+                                repeat_48h: bool, repeat_minutes: int = 0, alliance_id=None) -> int:
         try:
             embed_data = None
             notification_description = description
@@ -111,11 +117,11 @@ class BearTrap(commands.Cog):
             self.cursor.execute("""
                 INSERT INTO bear_notifications 
                 (guild_id, channel_id, hour, minute, timezone, description, notification_type,
-                mention_type, repeat_enabled, repeat_minutes, created_by, next_notification)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                mention_type, repeat_enabled, repeat_minutes, created_by, next_notification, alliance_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (guild_id, channel_id, hour, minute, timezone, notification_description, notification_type,
                   mention_type, 1 if repeat_48h else 0, repeat_minutes, created_by,
-                  next_notification.isoformat()))
+                  next_notification.isoformat(), alliance_id))
             
             notification_id = self.cursor.lastrowid
 
@@ -205,7 +211,7 @@ class BearTrap(commands.Cog):
             (id, guild_id, channel_id, hour, minute, timezone, description,
              notification_type, mention_type, repeat_enabled, repeat_minutes,
              is_enabled, created_at, created_by, last_notification,
-             next_notification) = notification
+             next_notification, alliance_id) = notification
             
             if not is_enabled:
                 return
@@ -510,6 +516,22 @@ class BearTrap(commands.Cog):
             "Asia/Tokyo": current_utc.astimezone(pytz.timezone('Asia/Tokyo')),
         }
         return times
+
+    def get_alliances(self):
+        """Retrieve and format all alliances from the database."""
+        try:
+            # Query alliances from the alliance.sqlite database
+            self.alliance_cursor.execute("SELECT id, name FROM alliance_list ORDER BY name")
+            alliances = self.alliance_cursor.fetchall()
+
+            # Format the result as a list of dictionaries for processing or display
+            alliance_list = [{"id": row[0], "name": row[1]} for row in alliances]
+            return alliance_list
+
+        except sqlite3.Error as e:
+            print(f"Error fetching alliances: {e}")
+            return []
+
     async def show_bear_trap_menu(self, interaction: discord.Interaction):
         try:
             times = self.get_world_times()
@@ -530,7 +552,7 @@ class BearTrap(commands.Cog):
                     "⏰ **Set Time**\n"
                     "└ Configure notification time\n"
                     "└ Not just for Bear! Use it for any event:\n"
-                    "   Bear - KE - Forst - CJ and everything else\n"
+                    "   Bear - KE - FrostFire - CJ and everything else\n"
                     "└ Add unlimited notifications\n\n"
                     "🗑️ **Remove Notification**\n"
                     "└ Delete unwanted notifications\n\n"
@@ -579,6 +601,37 @@ class BearTrap(commands.Cog):
 
     async def show_channel_selection(self, interaction: discord.Interaction, start_date, hour, minute, timezone, message_data, channels):
         try:
+            # Fetch the default notification channel dynamically from the alliance database
+            default_notification_channel_id = self.get_default_notification_channel_id()
+
+            # Ensure we have a valid default channel ID
+            if default_notification_channel_id:
+                # Directly pre-select the default channel
+                default_channel = interaction.guild.get_channel(default_notification_channel_id)
+
+                if default_channel:
+                    embed = discord.Embed(
+                        title="📢 Channel Auto-Selected",
+                        description=(
+                            f"The default notification channel has been auto-selected:\n\n"
+                            f"**{default_channel.name}**\n\n"
+                            "Make sure the bot has permission to send messages in this channel."
+                        ),
+                        color=discord.Color.green()
+                    )
+
+                    # Pass default channel to the next steps (or proceed with a fallback mechanism)
+                    await interaction.response.edit_message(
+                        content=None,
+                        embed=embed,
+                        view=None
+                    )
+                    return
+                else:
+                    # If the channel cannot be resolved (e.g., deleted), fall back to manual selection
+                    print(f"Warning: Default channel ID {default_notification_channel_id} could not be resolved in the guild.")
+
+        # Fallback: Show normal channel selection menu if default channel is not valid
             embed = discord.Embed(
                 title="📢 Select Channel",
                 description=(
@@ -611,6 +664,29 @@ class BearTrap(commands.Cog):
                 "❌ An error occurred while showing channel selection!",
                 ephemeral=True
             )
+
+
+def get_default_channel_id(self):
+    """
+    Retrieve the default notification channel ID from the alliance database.
+
+    Returns:
+        int or None: The ID of the default channel if found, otherwise None.
+    """
+    try:
+        # Query the alliancesettings table for the default notification channel
+        self.alliance_cursor.execute("SELECT default_notification_channel FROM alliancesettings LIMIT 1")
+        result = self.alliance_cursor.fetchone()
+
+        # Ensure result exists and return the channel ID
+        if result and result[0]:
+            return int(result[0])  # Channel ID must be an integer
+        return None
+
+    except sqlite3.Error as e:
+        print(f"Error retrieving default notification channel: {e}")
+        return None
+
 
 class RepeatOptionView(discord.ui.View):
     def __init__(self, cog, start_date, hour, minute, timezone, description, channel_id, notification_type, mention_type, original_message):
