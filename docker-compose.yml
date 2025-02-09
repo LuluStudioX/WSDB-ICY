@@ -1,14 +1,14 @@
-version: "3.8"  # Define Docker Compose version
-
-services:  # This must be a mapping
-  discord_bot:  # Each service is a mapping under `services`
+services:
+  discord_bot:
     build:
-      context: /mnt/user/appdata/WSDB-ICY/ # Use current directory for Dockerfile
-      dockerfile: Dockerfile  # Specify Dockerfile name
-    container_name: WSDB-ICY  # Optional: Name the container
+      context: /mnt/disk1/appdata/wsbd-icy/
+      dockerfile: Dockerfile
+    container_name: wsbd-icy
+    environment:
+      - DISCORD_TOKEN= # Replace with your token
     volumes:
-      - /mnt/user/appdata/WSDB-ICY/:/app/  # Map assets folder to app container
+      - /mnt/disk1/appdata/wsbd-icy/:/app/  # Map assets folder to app container direclty to disk user for faster reads and writes (in unraid at least)
     env_file:
-      - /mnt/user/appdata/WSDB-ICY/.env
-    network_mode: "" #Replace with your network name
-    restart: unless-stopped  # Restart the container automatically
+      - /mnt/disk1/appdata/wsbd-icy/.env
+    network_mode: "" # Replace with your network
+    restart: unless-stopped
