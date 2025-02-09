@@ -354,10 +354,12 @@ class GiftOperations(commands.Cog):
             return "ERROR"
 
         except Exception as e:
-            with open(log_file_path, 'a', encoding='utf-8') as log_file:
+            fallback_log_path = "fallback_log.txt"  # Default fallback path
+            with open(fallback_log_path, 'a', encoding='utf-8') as log_file:
                 log_file.write(f"ERROR in claim_giftcode_rewards_wos: {str(e)}\n")
                 log_file.write(f"STACK TRACE: {traceback.format_exc()}\n")
             return "ERROR"
+
 
     @tasks.loop(seconds=300)
     async def check_channels_loop(self):
