@@ -302,17 +302,17 @@ I love this community and thank you all for being part of this journey. ❤️
 
 ## Bot Interface Screenshots
 
-![Screenshot1](pictures/Screenshot_1.png)
-![Screenshot2](pictures/Screenshot_2.png)
-![Screenshot3](pictures/Screenshot_3.png)
-![Screenshot4](pictures/Screenshot_4.png)
-![Screenshot5](pictures/Screenshot_5.png)
-![Screenshot6](pictures/Screenshot_6.png)
-![Screenshot7](pictures/Screenshot_7.png)
-![Screenshot8](pictures/Screenshot_8.png)
-![Screenshot9](pictures/Screenshot_9.png)
-![Screenshot10](pictures/Screenshot_10.png)
-![Screenshot11](pictures/Screenshot_11.png)
+![Screenshot1](deprecated/pictures/Screenshot_1.png)
+![Screenshot2](deprecated/pictures/Screenshot_2.png)
+![Screenshot3](deprecated/pictures/Screenshot_3.png)
+![Screenshot4](deprecated/pictures/Screenshot_4.png)
+![Screenshot5](deprecated/pictures/Screenshot_5.png)
+![Screenshot6](deprecated/pictures/Screenshot_6.png)
+![Screenshot7](deprecated/pictures/Screenshot_7.png)
+![Screenshot8](deprecated/pictures/Screenshot_8.png)
+![Screenshot9](deprecated/pictures/Screenshot_9.png)
+![Screenshot10](deprecated/pictures/Screenshot_10.png)
+![Screenshot11](deprecated/pictures/Screenshot_11.png)
 
 ---
 
