@@ -177,10 +177,11 @@ class BearTrap(commands.Cog):
                     'author': result[6],
                     'mention_message': result[7]
                 }
-            return None
+            return {}
         except Exception as e:
             print(f"Error getting embed: {e}")
-            return None
+            return {}
+
 
     async def check_notifications(self):
         await self.bot.wait_until_ready()
