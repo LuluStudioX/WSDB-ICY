@@ -377,7 +377,9 @@ class Control(commands.Cog):
 
     @monitor_alliance_changes.before_loop
     async def before_monitor_alliance_changes(self):
-        await self.bot.wait_until_ready()
+        # Wait for the bot to be logged in and connected
+        if not self.bot.is_ready():
+            await self.bot.wait_until_ready()
 
     @monitor_alliance_changes.after_loop
     async def after_monitor_alliance_changes(self):
