@@ -107,7 +107,7 @@ class IDChannel(commands.Cog):
                     invalid_channels.append(channel_id)
                     continue
 
-                async for message in channel.history(limit=None, after=datetime.utcnow() - timedelta(days=1)):
+                async for message in channel.history(limit=None, after=datetime.now(datetime.UTC) - timedelta(days=1)):
                     if message.author.bot:
                         continue
 
@@ -333,7 +333,7 @@ class IDChannel(commands.Cog):
                 cursor.execute("SELECT channel_id, alliance_id FROM id_channels")
                 channels = cursor.fetchall()
 
-            current_time = datetime.utcnow()
+            current_time = datetime.now(datetime.UTC)
             five_minutes_ago = current_time.timestamp() - 300
 
             for channel_id, alliance_id in channels:
