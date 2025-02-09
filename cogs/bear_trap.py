@@ -18,6 +18,7 @@ class BearTrap(commands.Cog):
         # Connect to alliance databases
         self.alliance_db_path = 'db/alliance.sqlite'
         self.alliance_db = sqlite3.connect(self.alliance_db_path, check_same_thread=False)
+        self.alliance_db.execute("PRAGMA foreign_keys = ON") # Enable foreign keys
         self.alliance_cursor = self.alliance_db.cursor()
 
         self.cursor.execute("""
@@ -32,7 +33,7 @@ class BearTrap(commands.Cog):
                 notification_type INTEGER NOT NULL,
                 mention_type TEXT NOT NULL,
                 repeat_enabled INTEGER NOT NULL DEFAULT 0,
-                repeat_minutes INTEGER DEFAULT 2880,--48h as default value
+                repeat_minutes INTEGER DEFAULT 2880,
                 is_enabled INTEGER DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 created_by INTEGER NOT NULL,
