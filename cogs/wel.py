@@ -66,7 +66,7 @@ class GNCommands(commands.Cog):
                         alliances = cursor.fetchall()
 
                     if alliances:
-                        ALLIANCES_PER_PAGE = 5
+                        alliances_per_page = 5
                         alliance_info = []
                         
                         for alliance_id, name in alliances:
@@ -111,8 +111,8 @@ class GNCommands(commands.Cog):
                                 "\n━━━━━━━━━━━━━━━━━━━━━━"
                             )
 
-                        pages = [alliance_info[i:i + ALLIANCES_PER_PAGE] 
-                                for i in range(0, len(alliance_info), ALLIANCES_PER_PAGE)]
+                        pages = [alliance_info[i:i + alliances_per_page] 
+                                for i in range(0, len(alliance_info), alliances_per_page)]
 
                         for page_num, page in enumerate(pages, 1):
                             alliance_embed = discord.Embed(
